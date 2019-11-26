@@ -95,6 +95,5 @@ if __name__ == "__main__":
     df_train_cleaned_stemed.to_csv("train_cleaned_stemed_reuters.csv")
     df_test_cleaned_stemed.to_csv("test_cleaned_stemed_reuters.csv")
     print(train_X[:3])
-    # print(df_train_cleaned_stemed[0])
     print(Y_names)
 
