@@ -52,8 +52,29 @@ def get_20newsgroups(clean = True, stem = True):
 
     return train_X, train_Y, test_X, test_Y, Y_names
 
-def get_reuters():
-    pass
+def get_reuters(clean = True, stem = True):
+    documents = reuters.fileids()
+    Y_names = reuters.categories()
+
+    train_docs_ids = list(filter(lambda doc: doc.startswith("train"), documents))
+    test_docs_ids = list(filter(lambda doc: doc.startswith("test"), documents))
+
+    train_X = [reuters.raw(doc_id) for doc_id in train_docs_ids] # X_train
+    train_Y =[reuters.categories(doc_id) for doc_id in train_docs_ids] #Y_train
+
+    test_X = [reuters.raw(doc_id) for doc_id in test_docs_ids] # X_test
+    test_Y = [reuters.categories(doc_id) for doc_id in test_docs_ids] # Y_test
+
+    if clean: 
+        for i, text in enumerate(train_X):
+            train_X[i] = clean_text(text, stem)
+
+        for i, text in enumerate(test_X):
+            test_X[i] = clean_text(text, stem)
+
+    return train_X, train_Y, test_X, test_Y, Y_names
+
+    
 
 def get_20newsgroups_vectorized():
     pass
@@ -63,7 +84,7 @@ def get_reuters_vectorized():
 
 # for testing 
 if __name__ == "__main__":
-    train_X, train_Y, test_X, test_Y, Y_names = get_20newsgroups()
+    train_X, train_Y, test_X, test_Y, Y_names = get_reuters()
     
     train = list(zip(train_X, train_Y))
     df_train_cleaned_stemed = pd.DataFrame(train, columns =['X', 'Y'])
@@ -71,9 +92,9 @@ if __name__ == "__main__":
     test = list(zip(test_X, test_Y))
     df_test_cleaned_stemed = pd.DataFrame(test, columns =['X', 'Y'])
 
-    df_train_cleaned_stemed.to_csv("train_cleaned_stemed_20newsgroups.csv")
-    df_test_cleaned_stemed.to_csv("test_cleaned_stemed_20newsgroups.csv")
+    df_train_cleaned_stemed.to_csv("train_cleaned_stemed_reuters.csv")
+    df_test_cleaned_stemed.to_csv("test_cleaned_stemed_reuters.csv")
     print(train_X[:3])
-    print(train_Y[:3])
+    # print(df_train_cleaned_stemed[0])
     print(Y_names)
 
