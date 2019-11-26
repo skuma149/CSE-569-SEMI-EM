@@ -4,6 +4,7 @@ import nltk
 from nltk.corpus import reuters 
 from nltk.corpus import stopwords
 from nltk import PorterStemmer
+import pandas as pd 
 import re
 
 def clean_text(text, stem = True):
@@ -64,8 +65,15 @@ def get_reuters_vectorized():
 if __name__ == "__main__":
     train_X, train_Y, test_X, test_Y, Y_names = get_20newsgroups()
     
+    train = list(zip(train_X, train_Y))
+    df_train_cleaned_stemed = pd.DataFrame(train, columns =['X', 'Y'])
+
+    test = list(zip(test_X, test_Y))
+    df_test_cleaned_stemed = pd.DataFrame(test, columns =['X', 'Y'])
+
+    df_train_cleaned_stemed.to_csv("train_cleaned_stemed_20newsgroups.csv")
+    df_test_cleaned_stemed.to_csv("test_cleaned_stemed_20newsgroups.csv")
     print(train_X[:3])
     print(train_Y[:3])
     print(Y_names)
 
-    
