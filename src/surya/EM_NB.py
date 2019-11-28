@@ -27,28 +27,7 @@ class EM_NB:
     def perform_EM(self,X_l,y_l,X_u):
         nb_clf = MultinomialNB(alpha=0.01)
         nb_clf.fit(X_l,y_l)
-        # calculate log likelihood 
-        class_log_prior = (nb_clf.class_log_prior_).tolist()
-        word_given_class = nb_clf.feature_log_prob_
-        class_size = len(nb_clf.class_count_)
-        
-        un_sum_outer = 0
-        for doc in X_u:
-            sum_inner = 0
-            for index in range(class_size):
-                sum_inner += (class_log_prior[index] * np.sum(word_given_class[index,:]))
-            un_sum_outer += np.log(sum_inner)
-        
-        lb_sum = 0
-        for index,doc in enumerate(X_l):
-            sum_inner = 0
-            given_label = y_l[index]
-            sum_inner = (class_log_prior[given_label]* np.sum(word_given_class[given_label,:]))
-            lb_sum += sum_inner
-
-        log_likelihood = lb_sum + un_sum_outer
-        prev_likelihood = 0
-        new_likelihood = 0
+        print("y_l " , min(y_l.tolist()))
         count = 0
         while(count < 5):
             # Estimation step
@@ -63,13 +42,15 @@ class EM_NB:
             class_log_prior = (nb_clf.class_log_prior_).tolist()
             word_given_class = nb_clf.feature_log_prob_
             class_size = len(nb_clf.class_count_)
-            
+            print("word  - doc ",(X_u > 0).shape)
+            print("class_log_prior ",type(class_log_prior))
+            print("word_given_class ",type(word_given_class))
             count +=1
             un_sum_outer = 0
             for doc in X_u:
                 sum_inner = 0
                 for index in range(class_size):
-                    sum_inner += (class_log_prior[index] * np.sum(word_given_class[index,:]))
+                    sum_inner += (class_log_prior[index]* np.sum(word_given_class[index,:]))
                 un_sum_outer += np.log(sum_inner)
             
             lb_sum = 0
@@ -80,9 +61,6 @@ class EM_NB:
                 lb_sum += sum_inner
 
             log_likelihood = lb_sum + un_sum_outer
-            prev_likelihood = new_likelihood
-            new_likelihood = log_likelihood
-            print("difference " , new_likelihood - prev_likelihood)
             print("log_likelihood ",log_likelihood)
             
                 
