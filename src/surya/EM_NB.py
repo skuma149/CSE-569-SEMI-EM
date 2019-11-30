@@ -4,6 +4,8 @@ import numpy as np
 from sklearn.naive_bayes import MultinomialNB
 from scipy.sparse import coo_matrix, vstack
 from sklearn.model_selection import train_test_split, StratifiedShuffleSplit
+from utility import cross_validation
+from EM import Semi_NB
 
 class EM_NB:
 
@@ -63,10 +65,6 @@ class EM_NB:
             log_likelihood = lb_sum + un_sum_outer
             print("log_likelihood ",log_likelihood)
             
-                
-
-
-        
         
         
     def get_accuracy(self):
@@ -77,7 +75,6 @@ class EM_NB:
         num_labeled_doc = [0.2,0.5]
         for i,num in enumerate(num_labeled_doc):
             self.bayes_classifier = MultinomialNB(0.01)
-
             train_data_vectors = self.vectorizer.fit_transform(self.train_dataset.data)
             # train_label_vectors = self.labeled_dataset_target[:num]
             # unlabeled_label_vectors = self.vectorizer.fit_transform(self.unlabeled_dataset)
@@ -85,7 +82,8 @@ class EM_NB:
             split_ratio = 0.2 # labeled vs unlabeled
             X_l, X_u, y_l, y_u = train_test_split(train_data_vectors, self.train_dataset.target, train_size=split_ratio, stratify=self.train_dataset.target)
 
-            em_nb_clf = self.perform_EM(X_l, y_l, X_u)
+            em_nb_clf = Semi_NB()
+            em_nb_clf = cross_validation(X_l, y_l, X_u,em_nb_clf)
             # Test Accuracy
             test_data_vector = self.vectorizer.transform(self.test_dataset.data[:])
             num_test_samples = len(self.test_dataset.data[:])
