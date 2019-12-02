@@ -15,11 +15,13 @@ class Semi_EM_MultinomialNB():
     using unlabeled data, and all data to evaluate performance of classifier. Optimize
     classifier using Expectation-Maximization algorithm.
     """
-    def __init__(self, alpha=1.0, fit_prior=True, class_prior=None, max_iter=30, tol=1e-6, print_log_lkh=True):
+    def __init__(self, alpha=1.0, fit_prior=True, class_prior=None, max_iter=30, tol=1e-6, print_log_lkh=True,classifier = None):
         self.alpha = alpha
         self.fit_prior = fit_prior
         self.class_prior = class_prior
-        self.clf = MultinomialNB(alpha=self.alpha, fit_prior=self.fit_prior, class_prior=self.class_prior)
+        if(classifier==None):
+            self.clf = MultinomialNB(alpha=self.alpha, fit_prior=self.fit_prior, class_prior=self.class_prior)
+        self.clf = classifier
         self.log_lkh = -np.inf # log likelihood
         self.max_iter = max_iter # max number of EM iterations
         self.tol = tol # tolerance of log likelihood increment

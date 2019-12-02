@@ -7,10 +7,13 @@ from sklearn.multiclass import OneVsRestClassifier
 from sklearn.naive_bayes import MultinomialNB
 import numpy as np
 import random
-from utility import getRowsFromMatrix
+from utility import getRowsFromMatrix,cross_validation,cross_validation_EM
 from scipy import sparse
 from sklearn.metrics import accuracy_score
-
+from copy import deepcopy
+from sklearn.model_selection import cross_validate
+from SEMI_NB import Semi_EM_MultinomialNB
+from sklearn.cluster import KMeans
 nltk.download('reuters')
 stop_words = stopwords.words("english")
 
@@ -34,6 +37,8 @@ train_labels = mlb.fit_transform([reuters.categories(doc_id)
 test_labels = mlb.transform([reuters.categories(doc_id)
                              for doc_id in test_docs_id])
 
+copy_train_labels = deepcopy(train_labels)
+copy_test_labels = deepcopy(test_labels)
 # 10 most popular
 max_num_each_categ = np.count_nonzero(train_labels,axis=0)
 
@@ -109,14 +114,55 @@ all_class_index = [item for item in range(0,test_labels.shape[1])]
 col_to_delete = [x for x in all_class_index if x not in index_max_class]
 test_labels = np.delete(test_labels,col_to_delete,axis=1)
 
-print("test_binary_label",test_binary_label[:2,:])
-print("test_labels",test_labels[:2,:])
-print(accuracy_score(test_labels[:2,:],test_binary_label[:2,:]))
+# print("test_binary_label",test_binary_label[:3,:])
+# print("test_labels",test_labels[:3,:])
+# print(accuracy_score(test_labels[:3,:],test_binary_label[:3,:]))
 
-    
+nb = MultinomialNB(0.01)
+one_classifier = OneVsRestClassifier(nb)
 
+one_classifier.fit(vectorised_train_documents,copy_train_labels)
+
+test_predict = one_classifier.predict(vectorised_test_documents)
+
+print(accuracy_score(copy_test_labels,test_predict))
 # print(test_predict.shape)
 
 # print(((classifier.estimators_)[0].class_count_))
 
+
+
+print(vectorised_train_documents.shape)
+print(copy_train_labels.shape)
+
+
+# classes = mlb.classes_
+# classes = ([classes[item] for item in index_max_class])
+# nb_accuracy={}
+# for i in range(10):
+#     nb_classifier = one_classifier.estimators_[index_max_class[i]]
+#     print("count ",i+1)
+#     acc = cross_validation(sparse.csr_matrix(training_data_set[i+1]),training_label_set[i+1],nb_classifier)
+#     nb_accuracy[i+1]= acc
+
+# em_accuracy={}
+# for i in range(10):
+#     nb_classifier = one_classifier.estimators_[index_max_class[i]]
+#     em_nb_clf = Semi_EM_MultinomialNB(alpha=0.01,classifier=nb_classifier)
+#     print("count ",i+1)
+#     acc = cross_validation_EM(sparse.csr_matrix(training_data_set[i+1]),training_label_set[i+1],sparse.csr_matrix(new_vec_unlb_train),em_nb_clf,5)
+#     em_accuracy[i+1] = acc
+
+# print(nb_accuracy,em_accuracy)
+
+print(training_data_set[2][10:].shape)
+
+# NMF Vectorizer
+from sklearn.decomposition import NMF
+model = NMF(n_components=10, init='random', random_state=0)
+W = model.fit_transform(training_data_set[2][10:])
+H = model.components_
+
+print((one_classifier.estimators_)[0].class_log_prior_)
+ 
  
