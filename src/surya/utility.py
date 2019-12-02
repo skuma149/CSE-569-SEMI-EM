@@ -47,12 +47,12 @@ def cross_validation_EM(label_data,label_targets,unlabelled,classifier,num_fold=
         valid_data_item = label_data[valid_set]
         valid_data_target = label_targets[valid_set]
 
-        classifier.fit(train_data_item,train_data_target,unlabelled)
+        classifier = classifier.fit(train_data_item,train_data_target,unlabelled)
 
         predicted_labels = classifier.predict(valid_data_item)
         accuracies.append(metrics.accuracy_score(valid_data_target,predicted_labels))
         count+=1
     print("average accuracy " , np.mean(np.array(accuracies)))
-    return np.mean(np.array(accuracies))
+    return (classifier.clf,classifier.log_lkh)
 
 
