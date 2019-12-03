@@ -15,11 +15,14 @@ class Semi_EM_MultinomialNB():
     using unlabeled data, and all data to evaluate performance of classifier. Optimize
     classifier using Expectation-Maximization algorithm.
     """
-    def __init__(self, alpha=1.0, fit_prior=True, class_prior=None, max_iter=30, tol=1e-6, print_log_lkh=True):
+    def __init__(self, alpha=1.0, fit_prior=True, class_prior=None, max_iter=30, tol=1e-6, print_log_lkh=True,classifier = None):
         self.alpha = alpha
         self.fit_prior = fit_prior
         self.class_prior = class_prior
-        self.clf = MultinomialNB(alpha=self.alpha, fit_prior=self.fit_prior, class_prior=self.class_prior)
+        if(classifier==None):
+            self.clf = MultinomialNB(alpha=self.alpha, fit_prior=self.fit_prior, class_prior=self.class_prior)
+        else:
+            self.clf = classifier
         self.log_lkh = -np.inf # log likelihood
         self.max_iter = max_iter # max number of EM iterations
         self.tol = tol # tolerance of log likelihood increment
@@ -41,9 +44,6 @@ class Semi_EM_MultinomialNB():
         lp_w_c = clf.feature_log_prob_ # log CP of word given class [n_classes, n_words]
         b_w_d = (X_u > 0) # words in each document [n_docs, n_words]
         lp_d_c = get_blas_funcs("gemm", [lp_w_c, b_w_d.T.toarray()]) # log CP of doc given class [n_classes, n_docs]
-        print(type(lp_d_c))
-        print(lp_w_c.shape)
-        print(b_w_d.shape)
         lp_d_c = lp_d_c(alpha=1.0, a=lp_w_c, b=b_w_d.T.toarray()) 
         lp_c = np.matrix(clf.class_log_prior_).T # log prob of classes [n_classes, 1]
         lp_c = np.repeat(lp_c, n_ul_docs, axis=1) # repeat for each doc [n_classes, n_docs]
