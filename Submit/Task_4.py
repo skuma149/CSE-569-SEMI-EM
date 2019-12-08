@@ -13,7 +13,6 @@ from scipy import sparse
 from sklearn.metrics import accuracy_score
 from copy import deepcopy
 from sklearn.model_selection import cross_validate
-from SEMI_NB import Semi_EM_MultinomialNB
 from sklearn.cluster import KMeans
 from random import randrange
 nltk.download('reuters')
@@ -184,13 +183,14 @@ print("classes ", classes)
 
 num_z_class = [10,10,15,20,10,20,10,40,3,40]
 for i in range(len(classes)):
+    print("for class",classes[i])
     num_clusters = num_z_class[i]
     num_train_doc = copy_train_labels.shape[0]
     # step 1 Initial estimate
     z_doc_distr = []
     for k in range(num_train_doc):
         topic_given_class=[]
-        for i in range(num_clusters):
+        for j in range(num_clusters):
             topic_given_class.append(randrange(1,9))
         topic_given_class = np.asarray(topic_given_class)/sum(topic_given_class)
         z_doc_distr.append(topic_given_class)
@@ -198,15 +198,16 @@ for i in range(len(classes)):
     z_doc_distr = np.asarray(z_doc_distr)
     num_partition = np.logspace(2.1,3.8,num=9,dtype=int)
     for partition in num_partition:
-        label_train_data = z_doc_distr[:num_partition]
-        label_train_label = copy_train_labels[:num_partition]
-        unlabel_train_data = z_doc_distr[num_partition:]
+        label_train_data = z_doc_distr[:partition]
+        label_train_label = copy_train_labels[:partition]
+        unlabel_train_data = z_doc_distr[partition:]
 
         z_classifier = MultinomialNB(0.01)
         z_classifier.fit(label_train_data,label_train_label[:,index_max_class[i]])
         count = 0
-
-        while(count < 6):
+        prev_log = float("-inf")
+        current_log = float("inf")
+        while(abs(current_log-prev_log) > 1e-6):
 
             print("count",count+1)
             #In E step
@@ -214,7 +215,6 @@ for i in range(len(classes)):
             X_new = vstack([label_train_data, unlabel_train_data])
             Y_new = np.concatenate((label_train_label[:,index_max_class[i]], unlabel_predict), axis=0)
 
-            print("total labels",Y_new.shape)
             print("In M step")
             z_classifier.fit(X_new,Y_new)
 
@@ -239,8 +239,8 @@ for i in range(len(classes)):
                 lb_sum += sum_inner
 
             log_likelihood = (-1 * (lb_sum + un_sum_outer))
-            # prev_log = current_log
-            # current_log = log_likelihood
+            prev_log = current_log
+            current_log = log_likelihood
             print("log_likelihood ",log_likelihood)
 
 

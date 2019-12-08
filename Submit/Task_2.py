@@ -6,7 +6,6 @@ from scipy.sparse import coo_matrix, vstack
 from sklearn.model_selection import train_test_split, StratifiedShuffleSplit
 from utility import cross_validation,cross_validation_EM
 from EM import Semi_NB
-from SEMI_NB import Semi_EM_MultinomialNB
 from sklearn.metrics import accuracy_score
 
 class EM_NB:
